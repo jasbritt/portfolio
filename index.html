@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jasmine Brittan — Engineering × Policy</title>
+<meta name="description" content="Jasmine Brittan: Fulbright Scholar, Transport Planner, and UK Young Ambassador to the Commonwealth.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Raleway:wght@300;400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --navy: #1b2a4a; --navy-deep: #0f1b33; --navy-light: #2c3e6b;
+  --gold: #c9a84c; --gold-light: #e3c96e; --gold-pale: #f5edda;
+  --cream: #faf8f4; --white: #ffffff;
+  --text: #2d2d2d; --text-light: #6b6b6b; --border: #e2ddd5;
+  --heading: 'Playfair Display', Georgia, serif;
+  --body: 'Raleway', -apple-system, sans-serif;
+  --accent-font: 'Libre Baskerville', Georgia, serif;
+}
+html { scroll-behavior: smooth; font-size: 16px; }
+body { font-family: var(--body); background: var(--white); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+/* PRIVACY */
+#privacy-screen { position: fixed; inset: 0; z-index: 10000; background: var(--navy-deep); display: flex; align-items: center; justify-content: center; flex-direction: column; }
+#privacy-screen.hidden { display: none; }
+#privacy-screen .lock-icon { width: 56px; height: 56px; border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; color: var(--gold); }
+#privacy-screen h2 { font-family: var(--heading); font-size: 2.2rem; font-weight: 400; color: white; margin-bottom: 0.5rem; }
+#privacy-screen p { color: rgba(255,255,255,0.5); font-size: 0.95rem; margin-bottom: 2rem; }
+#privacy-screen .unlock-form { display: flex; gap: 0.75rem; }
+#privacy-screen input { padding: 0.7rem 1.2rem; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; font-family: var(--body); font-size: 0.9rem; background: rgba(255,255,255,0.07); color: white; outline: none; width: 220px; }
+#privacy-screen input:focus { border-color: var(--gold); }
+#privacy-screen input::placeholder { color: rgba(255,255,255,0.3); }
+#privacy-screen button { padding: 0.7rem 1.5rem; background: var(--gold); color: var(--navy-deep); border: none; border-radius: 4px; font-family: var(--body); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+#privacy-screen button:hover { background: var(--gold-light); }
+#site-toggle { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; align-items: center; gap: 0.5rem; background: var(--navy-deep); color: white; padding: 0.5rem 1rem; border-radius: 100px; font-size: 0.7rem; font-family: var(--body); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; opacity: 0.2; transition: opacity 0.3s; user-select: none; }
+#site-toggle:hover { opacity: 1; }
+#site-toggle .dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulse-dot 2s infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* NAV */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--white); border-bottom: 1px solid var(--border); transition: box-shadow 0.3s; }
+nav.scrolled { box-shadow: 0 2px 30px rgba(0,0,0,0.06); }
+.nav-inner { max-width: 1300px; margin: 0 auto; padding: 0 2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 72px; }
+.nav-left, .nav-right { display: flex; align-items: center; gap: 0.15rem; list-style: none; }
+.nav-left { justify-content: flex-end; }
+.nav-right { justify-content: flex-start; }
+.nav-logo { font-family: var(--heading); font-size: 1.4rem; font-weight: 500; color: var(--navy); text-decoration: none; text-align: center; padding: 0 2rem; white-space: nowrap; }
+.nav-left a, .nav-right a { font-size: 0.78rem; font-weight: 600; color: var(--text-light); text-decoration: none; padding: 0.45rem 0.8rem; border-radius: 4px; transition: all 0.2s; letter-spacing: 0.06em; text-transform: uppercase; }
+.nav-left a:hover, .nav-right a:hover, .nav-left a.active, .nav-right a.active { color: var(--navy); }
+.mobile-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; grid-column: 3; justify-self: end; }
+.mobile-toggle span { display: block; width: 24px; height: 2px; background: var(--navy); border-radius: 2px; }
+.mobile-menu { display: none; position: fixed; inset: 0; z-index: 999; background: var(--white); padding: 6rem 2.5rem 2rem; flex-direction: column; gap: 0.5rem; }
+.mobile-menu.open { display: flex; }
+.mobile-menu a { font-family: var(--heading); font-size: 1.6rem; color: var(--navy); text-decoration: none; padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+.mobile-menu a:hover { color: var(--gold); }
+@media (max-width: 900px) { .nav-left, .nav-right { display: none; } .nav-inner { grid-template-columns: 1fr auto; } .nav-logo { text-align: left; padding-left: 0; } .mobile-toggle { display: flex; } }
+
+/* HERO */
+.hero-banner { position: relative; width: 100%; height: 520px; margin-top: 72px; overflow: hidden; background: var(--navy-deep); }
+.hero-slide { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 1.5s ease; color: white; }
+.hero-slide.active { opacity: 1; }
+.hero-slide-bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.hero-slide-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15,27,51,0.85) 0%, rgba(27,42,74,0.65) 100%); }
+.hero-slide-content { position: relative; z-index: 2; text-align: center; padding: 2rem; max-width: 800px; }
+.hero-slide-content h1 { font-family: var(--heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 400; line-height: 1.15; margin-bottom: 1rem; }
+.hero-slide-content h1 em { font-style: italic; color: var(--gold); }
+.hero-slide-content p { font-family: var(--body); font-size: 1.05rem; font-weight: 300; color: rgba(255,255,255,0.8); max-width: 580px; margin: 0 auto; line-height: 1.7; }
+.hero-dots { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 0.5rem; }
+.hero-dots span { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: all 0.4s; cursor: pointer; }
+.hero-dots span.active { background: var(--gold); width: 24px; border-radius: 4px; }
+@media (max-width: 768px) { .hero-banner { height: 400px; } }
+
+/* SECTIONS */
+.section { max-width: 1200px; margin: 0 auto; padding: 5rem 2rem; }
+.section-header { text-align: center; margin-bottom: 3rem; }
+.section-header .label { font-family: var(--body); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.section-header h2 { font-family: var(--heading); font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 400; color: var(--navy); line-height: 1.2; }
+.section-divider { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+.section-divider hr { border: none; height: 1px; background: var(--border); }
+
+/* BUTTONS */
+.view-more-wrap { text-align: center; margin-top: 2.5rem; }
+.btn { display: inline-block; padding: 0.75rem 2rem; font-family: var(--body); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; border-radius: 3px; transition: all 0.3s; cursor: pointer; border: none; }
+.btn-outline { border: 2px solid var(--navy); color: var(--navy); background: transparent; }
+.btn-outline:hover { background: var(--navy); color: var(--white); }
+.btn-gold { border: 2px solid var(--gold); color: var(--navy-deep); background: var(--gold); }
+.btn-gold:hover { background: var(--gold-light); border-color: var(--gold-light); }
+
+/* ABOUT */
+.about-grid { display: grid; grid-template-columns: 380px 1fr; gap: 4rem; align-items: start; }
+.about-photo { width: 100%; aspect-ratio: 3/4; border-radius: 6px; overflow: hidden; }
+.about-photo img { width: 100%; height: 100%; object-fit: cover; }
+.about-text h2 { font-family: var(--heading); font-size: 2rem; font-weight: 400; color: var(--navy); margin-bottom: 1.5rem; line-height: 1.25; }
+.about-text p { color: var(--text-light); margin-bottom: 1rem; font-size: 0.95rem; }
+.about-text p:first-of-type { color: var(--text); font-size: 1rem; }
+.about-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
+.about-tags span { padding: 0.35rem 0.9rem; border: 1px solid var(--border); border-radius: 3px; font-size: 0.72rem; font-weight: 600; color: var(--text-light); letter-spacing: 0.05em; text-transform: uppercase; }
+.about-expanded { display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.about-expanded.open { display: block; }
+.about-expanded p { color: var(--text-light); margin-bottom: 1rem; font-size: 0.95rem; }
+.about-expanded h3 { font-family: var(--heading); font-size: 1.3rem; font-weight: 400; color: var(--navy); margin: 1.5rem 0 0.75rem; }
+.about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+.stat-card { padding: 1.25rem; background: var(--cream); border-radius: 8px; }
+.stat-card .num { font-family: var(--heading); font-size: 2rem; color: var(--gold); line-height: 1; }
+.stat-card .label { font-size: 0.75rem; color: var(--text-light); margin-top: 0.35rem; }
+@media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; gap: 2rem; } .about-photo { max-width: 320px; } }
+
+/* GALLERY */
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+.gallery-card { cursor: pointer; transition: transform 0.3s; }
+.gallery-card:hover { transform: translateY(-4px); }
+.gallery-card-img { width: 100%; aspect-ratio: 4/3; border-radius: 6px; overflow: hidden; position: relative; }
+.gallery-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.gallery-card:hover .gallery-card-img img { transform: scale(1.05); }
+.gallery-card-img .img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: var(--heading); font-size: 2.5rem; color: rgba(255,255,255,0.25); }
+.gallery-card h3 { font-family: var(--heading); font-size: 1rem; font-weight: 500; color: var(--navy); margin-top: 0.75rem; line-height: 1.3; }
+.gallery-card .year { font-family: var(--body); font-size: 0.75rem; font-weight: 600; color: var(--gold); letter-spacing: 0.08em; margin-top: 0.2rem; }
+.gc-1{background:linear-gradient(135deg,#1b2a4a,#3b5998)}.gc-2{background:linear-gradient(135deg,#2c3e6b,#c9a84c)}.gc-3{background:linear-gradient(135deg,#0f1b33,#1b2a4a)}.gc-4{background:linear-gradient(135deg,#4a6741,#c9a84c)}.gc-5{background:linear-gradient(135deg,#1b2a4a,#6b4c8a)}.gc-6{background:linear-gradient(135deg,#8b4513,#c9a84c)}.gc-7{background:linear-gradient(135deg,#2c3e6b,#4a6741)}.gc-8{background:linear-gradient(135deg,#c9a84c,#1b2a4a)}.gc-9{background:linear-gradient(135deg,#3b5998,#0f1b33)}
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; z-index: 5000; background: rgba(15,27,51,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 2rem; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-box { background: var(--white); border-radius: 10px; max-width: 600px; width: 100%; padding: 2.5rem; position: relative; transform: translateY(20px); transition: transform 0.3s; max-height: 85vh; overflow-y: auto; }
+.modal-overlay.open .modal-box { transform: translateY(0); }
+.modal-close { position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--text-light); line-height: 1; transition: color 0.2s; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { color: var(--navy); }
+.modal-box .modal-label { font-family: var(--body); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+.modal-box h3 { font-family: var(--heading); font-size: 1.6rem; font-weight: 400; color: var(--navy); margin-bottom: 0.35rem; line-height: 1.25; }
+.modal-box .modal-org { font-size: 0.85rem; font-weight: 600; color: var(--text-light); margin-bottom: 1.25rem; }
+.modal-box p { font-size: 0.95rem; color: var(--text-light); line-height: 1.7; }
+.modal-box .modal-tag { display: inline-block; padding: 0.3rem 0.75rem; background: var(--gold-pale); color: var(--navy); border-radius: 3px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 1.25rem; }
+
+/* QUOTE */
+.quote-band { background: var(--cream); padding: 4rem 2rem; text-align: center; }
+.quote-band blockquote { font-family: var(--accent-font); font-size: clamp(1.1rem, 2.2vw, 1.45rem); font-style: italic; color: var(--navy); line-height: 1.65; max-width: 780px; margin: 0 auto; position: relative; }
+.quote-band blockquote::before { content: '\201C'; font-family: var(--heading); font-size: 4rem; color: var(--gold); position: absolute; top: -1.5rem; left: -1rem; line-height: 1; }
+.quote-band cite { display: block; font-style: normal; font-family: var(--body); font-size: 0.8rem; font-weight: 600; color: var(--gold); margin-top: 1.5rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* SPEAKER */
+.speaker-block { background: var(--navy-deep); color: white; padding: 5rem 2rem; }
+.speaker-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+.speaker-text .label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+.speaker-text h2 { font-family: var(--heading); font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 400; color: white; margin-bottom: 1.25rem; line-height: 1.2; }
+.speaker-text p { color: rgba(255,255,255,0.65); font-size: 0.95rem; line-height: 1.7; margin-bottom: 1rem; }
+.speaker-topics { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.5rem 0; }
+.speaker-topics span { padding: 0.45rem 1rem; border: 1px solid rgba(255,255,255,0.15); border-radius: 3px; font-size: 0.78rem; font-weight: 500; color: rgba(255,255,255,0.7); transition: all 0.2s; }
+.speaker-topics span:hover { border-color: var(--gold); color: var(--gold); }
+.speaker-img { width: 100%; aspect-ratio: 3/4; border-radius: 8px; overflow: hidden; }
+.speaker-img img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 768px) { .speaker-inner { grid-template-columns: 1fr; gap: 2rem; } .speaker-img { max-width: 360px; } }
+
+/* FOOTER */
+footer { background: var(--navy-deep); color: white; padding: 3.5rem 2rem 2.5rem; }
+.footer-inner { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.footer-name { font-family: var(--heading); font-size: 1.5rem; font-weight: 400; margin-bottom: 1rem; }
+.footer-tagline { font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 2rem; max-width: 460px; }
+.footer-buttons { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center; }
+.footer-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.8rem; border-radius: 3px; font-family: var(--body); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.3s; cursor: pointer; }
+.footer-btn-gold { background: var(--gold); color: var(--navy-deep); border: 2px solid var(--gold); }
+.footer-btn-gold:hover { background: var(--gold-light); border-color: var(--gold-light); }
+.footer-btn-outline { background: transparent; color: white; border: 2px solid rgba(255,255,255,0.25); }
+.footer-btn-outline:hover { border-color: white; }
+.footer-social { margin-bottom: 2rem; }
+.footer-social a { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15); transition: all 0.3s; }
+.footer-social a:hover { border-color: var(--gold); background: rgba(201,168,76,0.1); }
+.footer-social a svg { fill: white; width: 18px; height: 18px; }
+.footer-bottom { font-size: 0.75rem; color: rgba(255,255,255,0.3); border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem; width: 100%; }
+
+/* PAGES */
+.page { display: none; } .page.active { display: block; }
+.reveal { opacity: 0; transform: translateY(25px); transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.page-hero { background: var(--navy-deep); color: white; padding: 8rem 2rem 4rem; text-align: center; }
+.page-hero h1 { font-family: var(--heading); font-size: clamp(2rem, 4vw, 3rem); font-weight: 400; margin-bottom: 0.75rem; }
+.page-hero p { color: rgba(255,255,255,0.6); font-size: 1rem; max-width: 500px; margin: 0 auto; }
+.back-home { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 600; color: var(--gold); text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2rem; transition: color 0.2s; }
+.back-home:hover { color: var(--gold-light); }
+</style>
+</head>
+<body>
+
+<div id="privacy-screen" class="hidden">
+  <div class="lock-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+  <h2>Site Paused</h2><p>This portfolio is currently set to private.</p>
+  <div class="unlock-form"><input type="password" id="unlock-pass" placeholder="Enter passcode" onkeydown="if(event.key==='Enter')unlockSite()"><button onclick="unlockSite()">Unlock</button></div>
+</div>
+<div id="site-toggle" onclick="toggleSiteVisibility()" title="Toggle site visibility"><span class="dot"></span> SITE LIVE</div>
+
+<nav id="main-nav">
+  <div class="nav-inner">
+    <ul class="nav-left">
+      <li><a href="#" onclick="return showPage('home')" data-page="home">Home</a></li>
+      <li><a href="#" onclick="return showPage('engineering')" data-page="engineering">Engineering</a></li>
+      <li><a href="#" onclick="return showPage('politics')" data-page="politics">Politics</a></li>
+    </ul>
+    <a href="#" class="nav-logo" onclick="return showPage('home')">Jasmine Brittan</a>
+    <ul class="nav-right">
+      <li><a href="#" onclick="return showPage('awards')" data-page="awards">Awards</a></li>
+      <li><a href="#" onclick="return showPage('events')" data-page="events">Events &amp; Media</a></li>
+      <li><a href="#" onclick="return showPage('speaker')" data-page="speaker">Book Me</a></li>
+    </ul>
+    <button class="mobile-toggle" onclick="toggleMobile()" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#" onclick="showPage('home');closeMobile();return false">Home</a>
+  <a href="#" onclick="showPage('engineering');closeMobile();return false">Engineering</a>
+  <a href="#" onclick="showPage('politics');closeMobile();return false">Politics</a>
+  <a href="#" onclick="showPage('awards');closeMobile();return false">Awards</a>
+  <a href="#" onclick="showPage('events');closeMobile();return false">Events &amp; Media</a>
+  <a href="#" onclick="showPage('speaker');closeMobile();return false">Book Me</a>
+</div>
+
+<!-- ============ HOME ============ -->
+<div class="page active" id="page-home">
+  <div class="hero-banner">
+    <div class="hero-slide active">
+      <div class="hero-slide-bg" style="background-image:url('images/namibia-group.jpg')"></div>
+      <div class="hero-slide-overlay"></div>
+      <div class="hero-slide-content"><h1>Engineering meets <em>Policy</em></h1><p>Increasing access to opportunity — in how we move, how we govern, and how we build the future.</p></div>
+    </div>
+    <div class="hero-slide">
+      <div class="hero-slide-bg" style="background-image:url('images/fulbright.jpg')"></div>
+      <div class="hero-slide-overlay"></div>
+      <div class="hero-slide-content"><h1>Fulbright Scholar</h1><p>From the University of Warwick to NYU, MIT, NASA, and the European Space Agency.</p></div>
+    </div>
+    <div class="hero-slide">
+      <div class="hero-slide-bg" style="background-image:url('images/chogm-samoa.jpg')"></div>
+      <div class="hero-slide-overlay"></div>
+      <div class="hero-slide-content"><h1>UK Young Ambassador to the <em>Commonwealth</em></h1><p>Representing youth voices across 56 nations — from Marlborough House to Windhoek to Apia.</p></div>
+    </div>
+    <div class="hero-slide">
+      <div class="hero-slide-bg" style="background-image:url('images/nasa-2.jpg')"></div>
+      <div class="hero-slide-overlay"></div>
+      <div class="hero-slide-content"><h1>Transport <em>&amp;</em> Mobility</h1><p>Researching urban air mobility and designing the infrastructure that connects communities.</p></div>
+    </div>
+    <div class="hero-dots"><span class="active" onclick="goToSlide(0)"></span><span onclick="goToSlide(1)"></span><span onclick="goToSlide(2)"></span><span onclick="goToSlide(3)"></span></div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="section" id="about">
+    <div class="about-grid reveal">
+      <div class="about-photo"><img src="images/profile.jpg" alt="Jasmine Brittan"></div>
+      <div class="about-text">
+        <div class="label" style="font-size:0.72rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;">About</div>
+        <h2>Bridging technical expertise and governance</h2>
+        <p>I'm Jasmine Brittan — a Fulbright Scholar, engineer, and policy advocate from Derby, UK. I hold a First Class BEng (Hons) in Engineering from the University of Warwick and an MSc from New York University and the University of Leeds, with a dissertation published in the journal <em>Climate Risk Management</em>.</p>
+        <p>My career sits at the nexus of engineering and policy. As a Transport Planner at BuroHappold Engineering, I work on urban development and infrastructure planning. As the UK's Young Ambassador to the Commonwealth, I advocate for youth participation in governance across 56 nations.</p>
+        <div class="about-tags">
+          <span>Transport &amp; Mobility</span><span>Urban Air Mobility</span><span>Commonwealth</span><span>Climate Policy</span><span>Diversity in STEM</span>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+          <a href="#" class="btn btn-outline" onclick="toggleAbout(); return false;" id="about-toggle-btn">Read More</a>
+        </div>
+
+        <div class="about-expanded" id="about-expanded">
+          <h3>Engineering Background</h3>
+          <p>I've held research and engineering roles at MIT's JTL Urban Mobility Lab, NASA's Jet Propulsion Laboratory, the European Space Agency, Rolls-Royce, A*STAR Singapore, and the C2SMARTER Centre at NYU. At Rolls-Royce, I developed AI code to generate augmented images of nozzle guided vanes — work valued at £5 billion when projected for organisation-wide rollout. At ESA, I built and launched a sounding rocket at Andøya Space Centre in Norway, presenting findings at conferences in Barcelona and Biarritz.</p>
+
+          <h3>Policy &amp; Commonwealth</h3>
+          <p>As the UK's Young Ambassador to the Commonwealth, I've represented British youth across the 56-nation Commonwealth — from Senior Officials Meetings at Marlborough House in London, to the Commonwealth Heads of Government Meeting in Samoa, to the Youth Consultation in Windhoek, Namibia, where I contributed to a declaration feeding directly into CHOGM 2026. I'm a founding member of Youth Council UK's Youth Advisory Group, the successor body to the British Youth Council.</p>
+
+          <h3>Research Focus</h3>
+          <p>My research focuses on the viability of new transport modalities, particularly urban air mobility and its environmental impact. My thesis at NYU/University of Leeds analysed the environmental benefits of urban air mobility across the United Kingdom, and was published in <em>Climate Risk Management</em>. I believe in using both technical skill and policy insight to widen access to opportunity for all.</p>
+
+          <div class="about-stats">
+            <div class="stat-card"><div class="num">56</div><div class="label">Commonwealth nations represented</div></div>
+            <div class="stat-card"><div class="num">6+</div><div class="label">Countries worked across</div></div>
+            <div class="stat-card"><div class="num">1st</div><div class="label">Class Honours, Warwick</div></div>
+            <div class="stat-card"><div class="num">3</div><div class="label">Published research works</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"><hr></div>
+
+  <!-- ENGINEERING GALLERY (newest first) -->
+  <div class="section">
+    <div class="section-header reveal"><div class="label">Engineering</div><h2>From Sounding Rockets to Urban Air Mobility</h2></div>
+    <div class="gallery-grid reveal">
+      <div class="gallery-card" onclick="openModal('eng-burohappold')"><div class="gallery-card-img gc-1"><div class="img-placeholder">BH</div></div><h3>Transport Planner — BuroHappold</h3><div class="year">2024 — Present</div></div>
+      <div class="gallery-card" onclick="openModal('eng-nasa')"><div class="gallery-card-img"><img src="images/nasa-1.jpg" alt="NASA JPL"></div><h3>Intern — NASA JPL</h3><div class="year">2024</div></div>
+      <div class="gallery-card" onclick="openModal('eng-mit')"><div class="gallery-card-img gc-2"><div class="img-placeholder">MIT</div></div><h3>Visiting Researcher — MIT</h3><div class="year">2024</div></div>
+      <div class="gallery-card" onclick="openModal('eng-nyu')"><div class="gallery-card-img"><img src="images/fulbright.jpg" alt="Fulbright NYU"></div><h3>Fulbright Scholar — NYU</h3><div class="year">2023 — 2024</div></div>
+      <div class="gallery-card" onclick="openModal('eng-esa')"><div class="gallery-card-img gc-5"><div class="img-placeholder">ESA</div></div><h3>Fly a Rocket! — ESA</h3><div class="year">2022</div></div>
+      <div class="gallery-card" onclick="openModal('eng-rr')"><div class="gallery-card-img gc-6"><div class="img-placeholder">R-R</div></div><h3>AI Intern — Rolls-Royce</h3><div class="year">2021</div></div>
+    </div>
+    <div class="view-more-wrap reveal"><a href="#" class="btn btn-outline" onclick="return showPage('engineering')">View More</a></div>
+  </div>
+
+  <div class="section-divider"><hr></div>
+
+  <!-- POLITICS GALLERY (newest first) -->
+  <div class="section">
+    <div class="section-header reveal"><div class="label">Commonwealth &amp; Politics</div><h2>Championing Youth Voice Globally</h2></div>
+    <div class="gallery-grid reveal">
+      <div class="gallery-card" onclick="openModal('pol-ycuk')"><div class="gallery-card-img gc-7"><div class="img-placeholder">YCUK</div></div><h3>Youth Advisory Group — YCUK</h3><div class="year">2024 — Present</div></div>
+      <div class="gallery-card" onclick="openModal('pol-chogm')"><div class="gallery-card-img"><img src="images/chogm-samoa.jpg" alt="CHOGM Samoa"></div><h3>CHOGM 2024 — Samoa</h3><div class="year">2024</div></div>
+      <div class="gallery-card" onclick="openModal('pol-ambassador')"><div class="gallery-card-img"><img src="images/namibia-flags.jpg" alt="Commonwealth Ambassador"></div><h3>UK Young Ambassador — Commonwealth</h3><div class="year">2019 — 2024</div></div>
+      <div class="gallery-card" onclick="openModal('pol-cop27')"><div class="gallery-card-img"><img src="images/cop27.jpg" alt="COP27"></div><h3>Research Delegate — COP27</h3><div class="year">2022</div></div>
+    </div>
+    <div class="view-more-wrap reveal"><a href="#" class="btn btn-outline" onclick="return showPage('politics')">View More</a></div>
+  </div>
+
+  <div class="quote-band reveal">
+    <blockquote>YCUK sets a new precedent for youth leadership in the UK. It offers a unique ecosystem where young people from all backgrounds can collaborate on the issues that matter most to them.</blockquote>
+    <cite>— Jasmine Brittan, quoted in CYP Now, 2025</cite>
+  </div>
+
+  <!-- AWARDS GALLERY (newest first) -->
+  <div class="section">
+    <div class="section-header reveal"><div class="label">Awards &amp; Recognition</div><h2>Selected Honours</h2></div>
+    <div class="gallery-grid reveal">
+      <div class="gallery-card" onclick="openModal('aw-fulbright')"><div class="gallery-card-img"><img src="images/fulbright.jpg" alt="Fulbright"></div><h3>Fulbright Scholarship</h3><div class="year">2023</div></div>
+      <div class="gallery-card" onclick="openModal('aw-brightsparks')"><div class="gallery-card-img"><img src="images/brightsparks.jpg" alt="BrightSparks"></div><h3>EW BrightSparks</h3><div class="year">2023</div></div>
+      <div class="gallery-card" onclick="openModal('aw-baton')"><div class="gallery-card-img"><img src="images/baton-bearer.jpg" alt="Baton Bearer"></div><h3>Commonwealth Games Baton Bearer</h3><div class="year">2022</div></div>
+      <div class="gallery-card" onclick="openModal('aw-upreach')"><div class="gallery-card-img"><img src="images/upreach.jpg" alt="UpReach"></div><h3>UpReach Outstanding Achievement</h3><div class="year">2021</div></div>
+    </div>
+    <div class="view-more-wrap reveal"><a href="#" class="btn btn-outline" onclick="return showPage('awards')">View More</a></div>
+  </div>
+
+  <div class="section-divider"><hr></div>
+
+  <!-- EVENTS GALLERY (newest first) -->
+  <div class="section">
+    <div class="section-header reveal"><div class="label">Conferences &amp; Panels</div><h2>Events &amp; Media Appearances</h2></div>
+    <div class="gallery-grid reveal">
+      <div class="gallery-card" onclick="openModal('ev-namibia')"><div class="gallery-card-img"><img src="images/namibia-group.jpg" alt="Namibia"></div><h3>Commonwealth Youth Consultation — Namibia</h3><div class="year">2025</div></div>
+      <div class="gallery-card" onclick="openModal('ev-chogm')"><div class="gallery-card-img"><img src="images/chogm-samoa.jpg" alt="CHOGM Samoa"></div><h3>CHOGM 2024 — Samoa</h3><div class="year">2024</div></div>
+      <div class="gallery-card" onclick="openModal('ev-cop27')"><div class="gallery-card-img"><img src="images/cop27.jpg" alt="COP27"></div><h3>COP27 — Sharm El-Sheikh</h3><div class="year">2022</div></div>
+      <div class="gallery-card" onclick="openModal('ev-patchwork')"><div class="gallery-card-img"><img src="images/patchwork-conference.jpg" alt="Patchwork"></div><h3>Patchwork Foundation — Party Conferences</h3><div class="year">2019 — 2022</div></div>
+    </div>
+    <div class="view-more-wrap reveal"><a href="#" class="btn btn-outline" onclick="return showPage('events')">View More</a></div>
+  </div>
+
+  <!-- SPEAKER -->
+  <div class="speaker-block">
+    <div class="speaker-inner reveal">
+      <div class="speaker-text">
+        <div class="label">Book Me as a Speaker</div>
+        <h2>Bringing engineering insight to the policy stage</h2>
+        <p>I speak on topics at the intersection of engineering, transport, youth leadership, and policy — drawing from experience across six countries, the Commonwealth, and institutions like MIT, NASA, and the European Space Agency.</p>
+        <div class="speaker-topics"><span>Urban Air Mobility</span><span>Future of Transport</span><span>Youth in Governance</span><span>Diversity in STEM</span><span>Climate &amp; Infrastructure</span><span>Access to Opportunity</span></div>
+        <p style="font-size:0.85rem;color:rgba(255,255,255,0.4);">Previous speaking: ICE Pitch 200, ESA conferences, Commonwealth Senior Officials, COP27, CHOGM, university societies.</p>
+        <a href="/cdn-cgi/l/email-protection#6c060d1f01050209160e1e0518180d022c0b010d0500420f0301531f190e06090f18513f1c090d0705020b495e5c29021d19051e15" class="btn btn-gold" style="margin-top:1.5rem;">Get in Touch</a>
+      </div>
+      <div class="speaker-img"><img src="images/profile.jpg" alt="Jasmine Brittan"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ENGINEERING PAGE (newest first) ============ -->
+<div class="page" id="page-engineering">
+  <div class="page-hero"><a href="#" class="back-home" onclick="return showPage('home')">&#8592; Back to Home</a><h1>Engineering</h1><p>From sounding rockets to urban air mobility</p></div>
+  <div class="section"><div class="gallery-grid">
+    <div class="gallery-card" onclick="openModal('eng-burohappold')"><div class="gallery-card-img gc-1"><div class="img-placeholder">BH</div></div><h3>Transport Planner — BuroHappold</h3><div class="year">2024 — Present</div></div>
+    <div class="gallery-card" onclick="openModal('eng-nasa')"><div class="gallery-card-img"><img src="images/nasa-1.jpg" alt="NASA"></div><h3>Intern — NASA JPL</h3><div class="year">2024</div></div>
+    <div class="gallery-card" onclick="openModal('eng-mit')"><div class="gallery-card-img gc-2"><div class="img-placeholder">MIT</div></div><h3>Visiting Researcher — MIT</h3><div class="year">2024</div></div>
+    <div class="gallery-card" onclick="openModal('eng-nyu')"><div class="gallery-card-img"><img src="images/fulbright.jpg" alt="NYU"></div><h3>Fulbright Scholar — NYU</h3><div class="year">2023 — 2024</div></div>
+    <div class="gallery-card" onclick="openModal('eng-astar')"><div class="gallery-card-img gc-5"><div class="img-placeholder">A*</div></div><h3>SIPGA Intern — A*STAR Singapore</h3><div class="year">2023</div></div>
+    <div class="gallery-card" onclick="openModal('eng-submarine')"><div class="gallery-card-img"><img src="images/submarine.jpg" alt="Submarine Races"></div><h3>International Submarine Races</h3><div class="year">2023</div></div>
+    <div class="gallery-card" onclick="openModal('eng-esa')"><div class="gallery-card-img gc-4"><div class="img-placeholder">ESA</div></div><h3>Fly a Rocket! — ESA</h3><div class="year">2022</div></div>
+    <div class="gallery-card" onclick="openModal('eng-zf')"><div class="gallery-card-img gc-7"><div class="img-placeholder">ZF</div></div><h3>Electronics Intern — ZF Automotive</h3><div class="year">2022</div></div>
+    <div class="gallery-card" onclick="openModal('eng-rr')"><div class="gallery-card-img gc-8"><div class="img-placeholder">R-R</div></div><h3>AI Intern — Rolls-Royce</h3><div class="year">2021</div></div>
+    <div class="gallery-card" onclick="openModal('eng-accenture')"><div class="gallery-card-img gc-9"><div class="img-placeholder">ACC</div></div><h3>Technology Placement — Accenture</h3><div class="year">2020</div></div>
+    <div class="gallery-card" onclick="openModal('eng-racing')"><div class="gallery-card-img gc-1"><div class="img-placeholder">WR</div></div><h3>Control Systems — Warwick Racing</h3><div class="year">2020 — 2022</div></div>
+    <div class="gallery-card" onclick="openModal('eng-warwick')"><div class="gallery-card-img"><img src="images/pdp-prize.jpg" alt="Warwick"></div><h3>BEng Engineering (First Class) — Warwick</h3><div class="year">2019 — 2023</div></div>
+  </div></div>
+</div>
+
+<!-- ============ POLITICS PAGE (newest first) ============ -->
+<div class="page" id="page-politics">
+  <div class="page-hero"><a href="#" class="back-home" onclick="return showPage('home')">&#8592; Back to Home</a><h1>Commonwealth &amp; Politics</h1><p>Championing youth voice in governance globally</p></div>
+  <div class="section"><div class="gallery-grid">
+    <div class="gallery-card" onclick="openModal('pol-ycuk')"><div class="gallery-card-img gc-7"><div class="img-placeholder">YCUK</div></div><h3>Youth Advisory Group — YCUK</h3><div class="year">2024 — Present</div></div>
+    <div class="gallery-card" onclick="openModal('pol-chogm')"><div class="gallery-card-img"><img src="images/chogm-samoa.jpg" alt="CHOGM"></div><h3>CHOGM 2024 — Samoa</h3><div class="year">2024</div></div>
+    <div class="gallery-card" onclick="openModal('pol-ambassador')"><div class="gallery-card-img"><img src="images/namibia-flags.jpg" alt="Commonwealth"></div><h3>UK Young Ambassador — Commonwealth</h3><div class="year">2019 — 2024</div></div>
+    <div class="gallery-card" onclick="openModal('pol-cop27')"><div class="gallery-card-img"><img src="images/cop27.jpg" alt="COP27"></div><h3>Research Delegate — COP27</h3><div class="year">2022</div></div>
+    <div class="gallery-card" onclick="openModal('pol-engsoc')"><div class="gallery-card-img gc-6"><div class="img-placeholder">WES</div></div><h3>President — Warwick Engineering Society</h3><div class="year">2021 — 2022</div></div>
+    <div class="gallery-card" onclick="openModal('pol-ice')"><div class="gallery-card-img gc-3"><div class="img-placeholder">ICE</div></div><h3>ICE Pitch 200 Winner &amp; Regional Ambassador</h3><div class="year">2020 — 2021</div></div>
+    <div class="gallery-card" onclick="openModal('pol-abme')"><div class="gallery-card-img gc-2"><div class="img-placeholder">D&amp;I</div></div><h3>Diversity in Engineering Advocacy</h3><div class="year">2020 — 2023</div></div>
+    <div class="gallery-card" onclick="openModal('pol-patchwork')"><div class="gallery-card-img"><img src="images/patchwork-conference.jpg" alt="Patchwork"></div><h3>Patchwork Foundation — Party Conferences</h3><div class="year">2019 — 2022</div></div>
+    <div class="gallery-card" onclick="openModal('pol-tfl')"><div class="gallery-card-img gc-9"><div class="img-placeholder">TfL</div></div><h3>Youth Panel — Transport for London</h3><div class="year">2018 — 2021</div></div>
+  </div></div>
+</div>
+
+<!-- ============ AWARDS PAGE (newest first) ============ -->
+<div class="page" id="page-awards">
+  <div class="page-hero"><a href="#" class="back-home" onclick="return showPage('home')">&#8592; Back to Home</a><h1>Awards &amp; Recognition</h1><p>Selected honours and achievements</p></div>
+  <div class="section"><div class="gallery-grid">
+    <div class="gallery-card" onclick="openModal('aw-fulbright')"><div class="gallery-card-img"><img src="images/fulbright.jpg" alt="Fulbright"></div><h3>Fulbright Scholarship</h3><div class="year">2023</div></div>
+    <div class="gallery-card" onclick="openModal('aw-brightsparks')"><div class="gallery-card-img"><img src="images/brightsparks.jpg" alt="BrightSparks"></div><h3>EW BrightSparks</h3><div class="year">2023</div></div>
+    <div class="gallery-card" onclick="openModal('aw-iet-travel')"><div class="gallery-card-img"><img src="images/submarine.jpg" alt="IET Travel"></div><h3>IET Travel Award</h3><div class="year">2023</div></div>
+    <div class="gallery-card" onclick="openModal('aw-tgp')"><div class="gallery-card-img gc-4"><div class="img-placeholder">TGP</div></div><h3>TGP Study Abroad Award</h3><div class="year">2023</div></div>
+    <div class="gallery-card" onclick="openModal('aw-raeng')"><div class="gallery-card-img gc-6"><div class="img-placeholder">RAE</div></div><h3>Royal Academy of Engineering — Leaders Scholar</h3><div class="year">2022</div></div>
+    <div class="gallery-card" onclick="openModal('aw-baton')"><div class="gallery-card-img"><img src="images/baton-bearer.jpg" alt="Baton Bearer"></div><h3>Commonwealth Games Baton Bearer</h3><div class="year">2022</div></div>
+    <div class="gallery-card" onclick="openModal('aw-pdp')"><div class="gallery-card-img"><img src="images/pdp-prize.jpg" alt="PDP Prize"></div><h3>Student Personal Development Prize</h3><div class="year">2022</div></div>
+    <div class="gallery-card" onclick="openModal('aw-iet')"><div class="gallery-card-img gc-3"><div class="img-placeholder">IET</div></div><h3>IET Future Talent Award</h3><div class="year">2022</div></div>
+    <div class="gallery-card" onclick="openModal('aw-upreach')"><div class="gallery-card-img"><img src="images/upreach.jpg" alt="UpReach"></div><h3>UpReach Outstanding Achievement</h3><div class="year">2021</div></div>
+    <div class="gallery-card" onclick="openModal('aw-bright')"><div class="gallery-card-img gc-8"><div class="img-placeholder">BN</div></div><h3>Bright Network Marketing Award</h3><div class="year">2021</div></div>
+    <div class="gallery-card" onclick="openModal('aw-ice')"><div class="gallery-card-img gc-5"><div class="img-placeholder">ICE</div></div><h3>ICE Pitch 200 — Midlands Winner</h3><div class="year">2020</div></div>
+    <div class="gallery-card" onclick="openModal('aw-scholarship')"><div class="gallery-card-img gc-9"><div class="img-placeholder">W</div></div><h3>Warwick Academic Scholarship</h3><div class="year">2019</div></div>
+  </div></div>
+</div>
+
+<!-- ============ EVENTS PAGE (newest first) ============ -->
+<div class="page" id="page-events">
+  <div class="page-hero"><a href="#" class="back-home" onclick="return showPage('home')">&#8592; Back to Home</a><h1>Events &amp; Media Appearances</h1><p>Conferences, panels, and media coverage</p></div>
+  <div class="section"><div class="gallery-grid">
+    <div class="gallery-card" onclick="openModal('ev-namibia')"><div class="gallery-card-img"><img src="images/namibia-group.jpg" alt="Namibia"></div><h3>Commonwealth Youth Consultation — Namibia</h3><div class="year">2025</div></div>
+    <div class="gallery-card" onclick="openModal('ev-chogm')"><div class="gallery-card-img"><img src="images/chogm-samoa.jpg" alt="CHOGM Samoa"></div><h3>CHOGM 2024 — Samoa</h3><div class="year">2024</div></div>
+    <div class="gallery-card" onclick="openModal('ev-ycuk-launch')"><div class="gallery-card-img gc-5"><div class="img-placeholder">YCUK</div></div><h3>Youth Council UK Launch — Media Coverage</h3><div class="year">2024</div></div>
+    <div class="gallery-card" onclick="openModal('ev-hardwarebee')"><div class="gallery-card-img"><img src="images/brightsparks.jpg" alt="BrightSparks"></div><h3>HardwareBee — EW BrightSparks Feature</h3><div class="year">2024</div></div>
+    <div class="gallery-card" onclick="openModal('ev-cop27')"><div class="gallery-card-img"><img src="images/cop27.jpg" alt="COP27"></div><h3>COP27 — Sharm El-Sheikh</h3><div class="year">2022</div></div>
+    <div class="gallery-card" onclick="openModal('ev-baton')"><div class="gallery-card-img"><img src="images/baton-bearer.jpg" alt="Baton Bearer"></div><h3>Birmingham Commonwealth Games Baton Relay</h3><div class="year">2022</div></div>
+    <div class="gallery-card" onclick="openModal('ev-esa-conf')"><div class="gallery-card-img gc-4"><div class="img-placeholder">ESA</div></div><h3>ESA Conferences — Barcelona &amp; Biarritz</h3><div class="year">2022</div></div>
+    <div class="gallery-card" onclick="openModal('ev-borderless')"><div class="gallery-card-img gc-6"><div class="img-placeholder">WS</div></div><h3>Borderless: Women in STEM Conference</h3><div class="year">2022</div></div>
+    <div class="gallery-card" onclick="openModal('ev-patchwork')"><div class="gallery-card-img"><img src="images/patchwork-conference.jpg" alt="Patchwork"></div><h3>Patchwork Foundation — Party Conferences</h3><div class="year">2019 — 2022</div></div>
+    <div class="gallery-card" onclick="openModal('ev-marlborough')"><div class="gallery-card-img gc-8"><div class="img-placeholder">MH</div></div><h3>Commonwealth Senior Officials — Marlborough House</h3><div class="year">2020</div></div>
+    <div class="gallery-card" onclick="openModal('ev-ice-pitch')"><div class="gallery-card-img gc-2"><div class="img-placeholder">ICE</div></div><h3>ICE Pitch 200 — Midlands Final</h3><div class="year">2020</div></div>
+  </div></div>
+</div>
+
+<!-- ============ SPEAKER PAGE ============ -->
+<div class="page" id="page-speaker">
+  <div class="page-hero"><a href="#" class="back-home" onclick="return showPage('home')">&#8592; Back to Home</a><h1>Book Me as a Speaker</h1><p>Bringing engineering insight to the policy stage</p></div>
+  <div class="speaker-block" style="margin-top:0;">
+    <div class="speaker-inner">
+      <div class="speaker-text">
+        <h2>Speaking Topics</h2>
+        <p>I speak on topics at the intersection of engineering, transport, youth leadership, and policy — drawing from experience across six countries, the Commonwealth, and institutions like MIT, NASA, and the European Space Agency.</p>
+        <div class="speaker-topics"><span>Urban Air Mobility</span><span>Future of Transport</span><span>Youth in Governance</span><span>Diversity in STEM</span><span>Climate &amp; Infrastructure</span><span>Commonwealth Youth</span><span>Engineering × Policy</span><span>Access to Opportunity</span></div>
+        <p style="font-size:0.85rem;color:rgba(255,255,255,0.4);margin-top:1.5rem;">Previous speaking: ICE Pitch 200, ESA conferences in Barcelona &amp; Biarritz, Commonwealth Senior Officials Meetings, CHOGM Samoa, COP27, university engineering societies.</p>
+        <a href="/cdn-cgi/l/email-protection#402a21332d292e253a2232293434212e00272d21292c6e232f2d7f3335222a2523347d133025212b292e27657270052e3135293239" class="btn btn-gold" style="margin-top:2rem;">Get in Touch</a>
+      </div>
+      <div class="speaker-img"><img src="images/profile.jpg" alt="Jasmine Brittan"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-name">Jasmine Brittan</div>
+    <div class="footer-tagline">Engineering × Policy — Increasing access to opportunity in how we move, govern, and build the future.</div>
+    <div class="footer-buttons">
+      <a href="/cdn-cgi/l/email-protection#f29893819f9b9c978890809b8686939cb2959f939b9edc919d9fcd81879098979186cfba979e9e9d" class="footer-btn footer-btn-gold">Get in Touch</a>
+      <a href="#" class="footer-btn footer-btn-outline" onclick="return showPage('speaker')">Book Me as a Speaker</a>
+    </div>
+    <div class="footer-social">
+      <a href="https://www.linkedin.com/in/jasmine-brittan/" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+    </div>
+    <div class="footer-bottom">© 2026 Jasmine Brittan. All rights reserved.</div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModalDirect()">×</button>
+    <div class="modal-label" id="modal-label"></div>
+    <h3 id="modal-title"></h3>
+    <div class="modal-org" id="modal-org"></div>
+    <p id="modal-desc"></p>
+    <span class="modal-tag" id="modal-tag"></span>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+const modalData={
+'eng-burohappold':{label:'Engineering',title:'Transport Planner',org:'BuroHappold Engineering · 2024 — Present',desc:'Working within the Cities business unit on urban development, infrastructure planning and design, sustainable transport strategies, and programme delivery. Part of the Transport & Mobility team tackling how we enable people to move around cities in more sustainable ways.',tag:'Transport & Mobility'},
+'eng-mit':{label:'Research',title:'Visiting Research Student',org:'MIT JTL Urban Mobility Lab · 2024',desc:'Visiting Masters student from NYU on a Fulbright Scholarship. Research focused on assessing the viability of new transportation modalities, particularly with reference to rural geographies. Thesis work analysing the environmental benefits of urban air mobility across the United Kingdom.',tag:'Research'},
+'eng-nyu':{label:'Education',title:'Fulbright Scholar — MS Engineering',org:'New York University · 2023 — 2024',desc:"Pursued a degree combining technical engineering with policy at NYU's Tandon School of Engineering. Research on integrating urban air mobility transport within society. Served as a Research Assistant at the C2SMARTER Center.",tag:'Fulbright'},
+'eng-nasa':{label:'Space',title:'Intern — Jet Propulsion Laboratory',org:'NASA JPL · 2024',desc:"Selected for a prestigious internship at NASA's Jet Propulsion Laboratory, applying engineering expertise to space exploration challenges.",tag:'Space'},
+'eng-astar':{label:'Research',title:'SIPGA Research Intern',org:'A*STAR Singapore · 2023',desc:'Awarded the Singapore International Pre-Graduate Award (SIPGA) to undertake a research internship at the Agency for Science, Technology and Research (A*STAR).',tag:'Research'},
+'eng-submarine':{label:'Competition',title:'International Submarine Races',org:'US Naval Base, Carderock · 2023',desc:"Part of the Warwick Submarine team competing in the 17th International Submarine Races at the US Naval base in Maryland. The human-powered submarine 'Man-o-Warwick' showcased innovations. Funded by an IET Travel Award.",tag:'Competition'},
+'eng-esa':{label:'Space',title:'Fly a Rocket! — Sensor Experiments Team',org:'European Space Agency · 2022',desc:'Built and launched a sounding rocket at Andøya Space Centre, Norway. Built the pressure sensor, integrated it onto the payload plate, and wrote Python code to compare elevation values. Presented findings at ESA conferences in Barcelona and Biarritz.',tag:'Space'},
+'eng-zf':{label:'Automotive',title:'Sustainability Electronics Intern',org:'ZF Automotive · 2022',desc:'Embedded systems engineering role as a UK Electronics Skills Foundation Scholar. Contributed to system design and development within a manufacturing environment.',tag:'Automotive'},
+'eng-rr':{label:'AI / Data',title:'R2 Data Labs — AI Intern',org:'Rolls-Royce · 2021',desc:"Wrote code to generate thousands of augmented images of nozzle guided vanes for an AI discriminator. The team's output was valued at £5 billion when projected for organisation-wide rollout.",tag:'AI / Data'},
+'eng-accenture':{label:'Technology',title:'Technology Summer Placement',org:'Accenture · 2020',desc:"Summer placement in web development, gaining exposure to Accenture's tech strategy and completing code training programmes.",tag:'Technology'},
+'eng-racing':{label:'Motorsport',title:'Control Systems Engineer',org:'Warwick Racing · 2020 — 2022',desc:'Contributed to electrical components and dashboard integration for the Warwick Racing team in a competitive motorsport environment.',tag:'Motorsport'},
+'eng-warwick':{label:'Education',title:'BEng (Hons) Engineering — First Class',org:'University of Warwick · 2019 — 2023',desc:'General engineering degree with First Class Honours. President of Warwick Engineering Society (500+ members). Won inaugural Student Personal Development Prize.',tag:'Education'},
+'pol-ycuk':{label:'Governance',title:'Youth Advisory Group Member',org:'Youth Council UK · 2024 — Present',desc:"Founding member of YCUK's Youth Advisory Group, shaping governance and priorities of the UK's successor body to the British Youth Council.",tag:'Governance'},
+'pol-chogm':{label:'Commonwealth',title:'CHOGM 2024 — Samoa',org:'Commonwealth Heads of Government Meeting · 2024',desc:'Attended the Commonwealth Heads of Government Meeting in Apia, Samoa as part of the UK delegation. Engaged with youth delegates and senior officials from across the 56-nation Commonwealth on issues of climate, education, and youth empowerment.',tag:'Commonwealth'},
+'pol-ambassador':{label:'Commonwealth',title:'UK Young Ambassador to the Commonwealth',org:'British Youth Council · 2019 — 2024',desc:'Represented UK youth across the 56-nation Commonwealth. Attended Senior Officials Meetings at Marlborough House. Contributed to the Commonwealth Youth Declaration in Windhoek, Namibia — feeding into CHOGM 2026.',tag:'Commonwealth'},
+'pol-cop27':{label:'Climate',title:'Research Delegate — COP27',org:'Future Leaders Network · 2022',desc:'Selected as a COP27 research delegate in Sharm El-Sheikh, Egypt. Networked with international youth climate delegations and contributed to policy reports.',tag:'Climate'},
+'pol-tfl':{label:'Transport Policy',title:'TfL Youth Panel Member',org:'Transport for London · 2018 — 2021',desc:'Provided insight on transport viability and how different demographics use services. Conducted outreach at schools and applied insights to civil engineering work.',tag:'Transport Policy'},
+'pol-patchwork':{label:'Policy',title:'Party Conference & Masterclass Programmes',org:'Patchwork Foundation · 2019 — 2022',desc:"Attended UK political party conferences and participated in the Masterclass Programme, including visiting 10 Downing Street. Developed political knowledge, engagement and leadership skills.",tag:'Policy'},
+'pol-ice':{label:'Advocacy',title:'ICE Pitch 200 Winner & Regional Ambassador',org:'Institution of Civil Engineers · 2020 — 2021',desc:'Won the ICE Pitch 200 Midlands Final on the Future of Transport. Appointed Regional Ambassador for the Midlands.',tag:'Advocacy'},
+'pol-engsoc':{label:'Leadership',title:'President — Warwick Engineering Society',org:'University of Warwick · 2021 — 2022',desc:'Led 30-strong exec team and 500-member society. Organised conferences, EngCafés, published The Warwick Engineer magazine, hosted a 200-attendee ball, and focused on increasing diversity in engineering.',tag:'Leadership'},
+'pol-abme':{label:'Diversity & Inclusion',title:'Diversity in Engineering Advocacy',org:'Multiple organisations · 2020 — 2023',desc:'Selected as one of 22 ambassadors across 14 universities for diversity and inclusion. Ran assessment centre sessions with the Association for Black and Minority Ethnic Engineers. Nominated as Commonwealth Games Baton Bearer for this work.',tag:'Diversity & Inclusion'},
+'aw-fulbright':{label:'Award',title:'Fulbright Scholarship',org:'US-UK Fulbright Commission · 2023',desc:'Awarded to pursue an MS at New York University, combining engineering with policy research on urban air mobility.',tag:'Scholarship'},
+'aw-brightsparks':{label:'Award',title:'EW BrightSparks',org:'Electronics Weekly · 2023',desc:"Recognised as one of the UK's brightest young engineers in the 2023 cohort.",tag:'Engineering'},
+'aw-iet-travel':{label:'Award',title:'IET Travel Award',org:'IET · 2023',desc:'Funded participation in the 17th International Submarine Races at the US Naval base in Carderock, Maryland.',tag:'Travel'},
+'aw-tgp':{label:'Award',title:'TGP Study Abroad Award',org:'TGP · 2023',desc:'Awarded to travel to Peru and for an internship at A*STAR in Singapore.',tag:'International'},
+'aw-raeng':{label:'Award',title:'Royal Academy of Engineering — Leaders Scholar',org:'Royal Academy of Engineering · 2022',desc:'Selected for the 27th cohort, recognised as one of the top five young electronic engineers. Enhanced scholarship with BuroHappold placement.',tag:'Engineering'},
+'aw-baton':{label:'Award',title:'Commonwealth Games Baton Bearer',org:'Birmingham 2022',desc:'Nominated as a baton bearer for the Birmingham 2022 Commonwealth Games in recognition of diversity work in STEM.',tag:'Recognition'},
+'aw-pdp':{label:'Award',title:'Student Personal Development Prize',org:'University of Warwick · 2022',desc:'Inaugural award from the School of Engineering for acting as a role model and encouraging participation.',tag:'University'},
+'aw-iet':{label:'Award',title:'IET Future Talent Award',org:'IET · 2022',desc:'Recognised for outstanding promise in engineering, from the Faraday Challenge through to space exploration.',tag:'Engineering'},
+'aw-upreach':{label:'Award',title:'UpReach Outstanding Achievement Award',org:'UpReach · 2021',desc:'Awarded for exceptional achievement as a student from a less-advantaged background.',tag:'Achievement'},
+'aw-bright':{label:'Award',title:'Bright Network Marketing Award',org:'Bright Network · 2021',desc:"Won by Warwick Engineering Society during Jasmine's tenure as President.",tag:'Society'},
+'aw-ice':{label:'Award',title:'ICE Pitch 200 — Midlands Winner',org:'ICE · 2020',desc:'Won the Midlands Final with a presentation on the Future of Transport.',tag:'Competition'},
+'aw-scholarship':{label:'Award',title:'Warwick Academic Scholarship',org:'University of Warwick · 2019',desc:'Academic scholarship for undergraduate engineering studies.',tag:'Scholarship'},
+'ev-namibia':{label:'Delegation',title:'Commonwealth Youth Consultation — Windhoek, Namibia',org:'March 2025',desc:'UK delegation member. Contributed to the Commonwealth Youth Declaration on climate, education and digitalisation, feeding into CHOGM 2026. Included tree-planting events and speeches from the Prime Minister of Namibia.',tag:'Delegation'},
+'ev-chogm':{label:'Summit',title:'CHOGM 2024 — Samoa',org:'October 2024',desc:'Attended the Commonwealth Heads of Government Meeting in Apia, Samoa. Engaged with youth delegates and senior officials from across the Commonwealth on climate, education, and youth empowerment.',tag:'Summit'},
+'ev-ycuk-launch':{label:'Media',title:'Youth Council UK Launch',org:'2024',desc:'Quoted as a founding Youth Advisory Group member in CYP Now and Civil Society media coverage on the launch of YCUK.',tag:'Media'},
+'ev-hardwarebee':{label:'Feature',title:'HardwareBee — EW BrightSparks Feature',org:'January 2024',desc:'In-depth profile covering engineering achievements from Rolls-Royce AI work to ESA rocket launches to Warwick Engineering Society leadership.',tag:'Feature'},
+'ev-cop27':{label:'Conference',title:'COP27 — Sharm El-Sheikh, Egypt',org:'November 2022',desc:'Research delegate with the Future Leaders Network. Engaged with international youth climate delegations.',tag:'Conference'},
+'ev-baton':{label:'Ceremony',title:'Birmingham Commonwealth Games Baton Relay',org:'July 2022',desc:'Selected as a baton bearer in the official relay for the Birmingham 2022 Commonwealth Games.',tag:'Ceremony'},
+'ev-esa-conf':{label:'Conference',title:'ESA — 4th SSEA & 25th PAC Conferences',org:'2022',desc:'Presented Fly a Rocket! sensor research findings in Barcelona and Biarritz as an ESA-sponsored student.',tag:'Conference'},
+'ev-borderless':{label:'Organiser',title:'Borderless: Women in STEM Conference',org:'2022',desc:"Organised flagship conference at Warwick with four sponsored speakers on diversity in engineering.",tag:'Organiser'},
+'ev-patchwork':{label:'Programme',title:'Patchwork Foundation — Party Conference & Masterclass Programme',org:'2019 — 2022',desc:'Attended UK political party conferences and participated in the Masterclass Programme, including visiting 10 Downing Street. Developed policy literacy and political engagement skills.',tag:'Programme'},
+'ev-marlborough':{label:'Panel',title:'Commonwealth Youth Senior Officials Meeting',org:'Marlborough House, London · January 2020',desc:'Represented UK youth. Presented national campaigns from the Make Your Mark ballot to Commonwealth leaders from the UK, Canada, Malta and Cyprus.',tag:'Panel'},
+'ev-ice-pitch':{label:'Competition',title:'ICE Pitch 200 — Midlands Final',org:'2020',desc:'Won with a presentation on the Future of Transport, competing against three finalists.',tag:'Competition'}
+};
+
+function openModal(id){const d=modalData[id];if(!d)return;document.getElementById('modal-label').textContent=d.label;document.getElementById('modal-title').textContent=d.title;document.getElementById('modal-org').textContent=d.org;document.getElementById('modal-desc').textContent=d.desc;document.getElementById('modal-tag').textContent=d.tag;document.getElementById('modal-overlay').classList.add('open');document.body.style.overflow='hidden';}
+function closeModal(e){if(e&&e.target!==e.currentTarget)return;document.getElementById('modal-overlay').classList.remove('open');document.body.style.overflow='';}
+function closeModalDirect(){document.getElementById('modal-overlay').classList.remove('open');document.body.style.overflow='';}
+
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const page=document.getElementById('page-'+name);if(page)page.classList.add('active');document.querySelectorAll('.nav-left a, .nav-right a').forEach(a=>{a.classList.toggle('active',a.dataset.page===name);});window.scrollTo({top:0,behavior:'instant'});setTimeout(initReveals,100);return false;}
+
+function toggleAbout(){const el=document.getElementById('about-expanded');const btn=document.getElementById('about-toggle-btn');if(el.classList.contains('open')){el.classList.remove('open');btn.textContent='Read More';}else{el.classList.add('open');btn.textContent='Read Less';}}
+
+let currentSlide=0;const slides=document.querySelectorAll('.hero-slide');const dots=document.querySelectorAll('.hero-dots span');
+function goToSlide(n){slides[currentSlide].classList.remove('active');dots[currentSlide].classList.remove('active');currentSlide=n;slides[currentSlide].classList.add('active');dots[currentSlide].classList.add('active');}
+setInterval(()=>{goToSlide((currentSlide+1)%slides.length);},8000);
+
+function initReveals(){const els=document.querySelectorAll('.reveal');const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.08,rootMargin:'0px 0px -30px 0px'});els.forEach(el=>{el.classList.remove('visible');obs.observe(el);});}
+initReveals();
+
+window.addEventListener('scroll',()=>{document.getElementById('main-nav').classList.toggle('scrolled',window.scrollY>20);});
+function toggleMobile(){document.getElementById('mobile-menu').classList.toggle('open');}
+function closeMobile(){document.getElementById('mobile-menu').classList.remove('open');}
+
+const PASSCODE='jasmine2026';
+function checkSiteStatus(){const h=localStorage.getItem('site_hidden');if(h==='true'){document.getElementById('privacy-screen').classList.remove('hidden');document.getElementById('site-toggle').style.display='none';document.body.style.overflow='hidden';}else{document.getElementById('privacy-screen').classList.add('hidden');document.getElementById('site-toggle').style.display='flex';document.body.style.overflow='';}}
+function toggleSiteVisibility(){if(confirm('Hide your portfolio behind a passcode screen?')){localStorage.setItem('site_hidden','true');checkSiteStatus();}}
+function unlockSite(){const input=document.getElementById('unlock-pass');if(input.val
