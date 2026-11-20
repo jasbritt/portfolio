@@ -597,18 +597,17 @@ function closeMobile() {
 }
 
 /* ========== INIT ON LOAD ========== */
-document.addEventListener("DOMContentLoaded", function() {
-  checkSiteStatus();
-  initSlider();
-  initReveals();
-
-  /* Ensure home page is visible on load */
-  var home = document.getElementById("page-home");
-  if (home) {
-    home.classList.add("active");
-    home.style.display = "block";
-  }
-});
+function initSite() {
+  /* Show the home page and its content as soon as the site opens */
+  try { showPage("home"); } catch (e) { console.error("Init error:", e); }
+  try { initSlider(); } catch (e) { console.error("Slider error:", e); }
+  try { initReveals(); } catch (e) { console.error("Reveal error:", e); }
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initSite);
+} else {
+  initSite();
+}
 </script>
 </body>
 </html>
