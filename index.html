@@ -575,7 +575,13 @@ function initReveals() {
       els[j].classList.remove("visible");
       obs.observe(els[j]);
     }
-  } catch (e) { console.error("Reveal error:", e); }
+  } catch (e) { console.error("Reveal error:", e); showAllReveals(); }
+  /* Safety net: never leave content hidden if the scroll animation fails to fire */
+  setTimeout(showAllReveals, 2500);
+}
+function showAllReveals() {
+  var els = document.querySelectorAll(".reveal");
+  for (var i = 0; i < els.length; i++) els[i].classList.add("visible");
 }
 
 /* ========== NAV SCROLL ========== */
